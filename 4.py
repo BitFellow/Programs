@@ -1,33 +1,23 @@
+!pip install tensorflow matplotlib
+
 import matplotlib.pyplot as plt
-import numpy as np
 import tensorflow as tf
 from tensorflow.keras.datasets import fashion_mnist
 from tensorflow.keras.layers import Dense, Flatten, Reshape
-from tensorflow.keras.models import Model
 
 (x_train, _), (x_test, _) = fashion_mnist.load_data()
+x_train, x_test = x_train / 255.0, x_test / 255.0
 
-x_train = x_train / 255.0
-x_test = x_test / 255.0
+model = tf.keras.Sequential([
+    Flatten(input_shape=(28, 28)),
+    Dense(128, activation="relu"),
+    Dense(784, activation="sigmoid"),
+    Reshape((28, 28))
+])
 
-class Autoencoder(Model):
-    def __init__(self):
-        super().__init__()
-        self.encoder = tf.keras.Sequential([
-            Flatten(),
-            Dense(128, activation="relu")
-        ])
-        self.decoder = tf.keras.Sequential([
-            Dense(784, activation="sigmoid"),
-            Reshape((28, 28))
-        ])
-
-    def call(self, x):
-        return self.decoder(self.encoder(x))
-
-model = Autoencoder()
 model.compile(optimizer="adam", loss="mse")
-model.fit(x_train, x_train, epochs=10, validation_data=(x_test, x_test))
+model.fit(x_train, x_train, epochs=10,
+          validation_data=(x_test, x_test))
 
 decoded = model.predict(x_test[:10])
 

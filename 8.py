@@ -1,12 +1,11 @@
+!pip install -U tensorflow-datasets
+!pip install importlib-resources
+
 import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow.keras import layers, models
 
-train, test = tfds.load(
-    "imdb_reviews",
-    split=["train", "test"],
-    as_supervised=True
-)
+train, test = tfds.load("imdb_reviews", split=["train", "test"], as_supervised=True)
 
 model = models.Sequential([
     layers.TextVectorization(max_tokens=10000, output_sequence_length=200),
@@ -19,7 +18,6 @@ model = models.Sequential([
 model.layers[0].adapt(train.map(lambda x, y: x))
 
 model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
-
 model.fit(train.batch(512), epochs=5, validation_data=test.batch(512))
 
 print("Test Accuracy:", model.evaluate(test.batch(512))[1])
